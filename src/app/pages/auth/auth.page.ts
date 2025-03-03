@@ -17,6 +17,7 @@ import {
   personAddOutline,
   logInOutline,
   alertCircleOutline,
+  personCircleOutline,
 } from 'ionicons/icons';
 import { IonButton } from '@ionic/angular/standalone';
 import { LogoComponent } from 'src/app/shared/components/logo/logo.component';
@@ -51,35 +52,74 @@ export class AuthPage implements OnInit {
 
   firebaseService = inject(FirebaseService);
   utilsService = inject(UtilsService);
-  
+
   constructor() {
     addIcons({
       mailOutline,
       lockClosedOutline,
       personAddOutline,
       logInOutline,
-      alertCircleOutline
+      alertCircleOutline,
+      personCircleOutline,
     });
   }
 
   ngOnInit() {}
 
   async submit() {
-
     const loading = await this.utilsService.loading();
     await loading.present();
-    this.firebaseService.signIn(this.form.value as User).then(res => {
-      console.log(res);
-    }).catch(error => {
-      this.utilsService.presentToast({
-        message: error.message,
-        duration: 2500,
-        color: 'danger',
-        position: 'middle',
-        icon: 'alert-circle-outline'
+    this.firebaseService
+      .signIn(this.form.value as User)
+      .then((res) => {
+        this.getUserInfo(res.user.uid);
       })
-    }).finally(() => {
-      loading.dismiss();
-    })
+      .catch((error) => {
+        this.utilsService.presentToast({
+          message: error.message,
+          duration: 2500,
+          color: 'danger',
+          position: 'middle',
+          icon: 'alert-circle-outline',
+        });
+      })
+      .finally(() => {
+        loading.dismiss();
+      });
+  }
+
+  async getUserInfo(uid: string) {
+    const loading = await this.utilsService.loading();
+    await loading.present();
+
+    let path = `users/${uid}`;
+
+    this.firebaseService
+      .getDocument(path)
+      .then((userData: any) => {
+        const user: User = userData;
+        this.utilsService.saveInLocalStorage('user', user);
+        this.utilsService.presentToast({
+          message: `Sesión iniciada como ${user.name}`,
+          duration: 1500,
+          color: 'success',
+          position: 'middle',
+          icon: 'person-circle-outline',
+        });
+        this.form.reset();
+        this.utilsService.routerLink('/home');
+      })
+      .catch((error) => {
+        this.utilsService.presentToast({
+          message: error.message,
+          duration: 2500,
+          color: 'danger',
+          position: 'middle',
+          icon: 'alert-circle-outline',
+        });
+      })
+      .finally(() => {
+        loading.dismiss();
+      });
   }
 }

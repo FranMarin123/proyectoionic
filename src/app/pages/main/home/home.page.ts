@@ -1,20 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { Component, inject, OnInit } from '@angular/core';
+import { IonButton, IonContent, IonHeader, IonToolbar } from '@ionic/angular/standalone';
+import { FirebaseService } from 'src/app/services/firebase.service';
+import { UtilsService } from 'src/app/services/utils.service';
+import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [IonToolbar, IonHeader, IonButton, HeaderComponent, IonContent],
 })
 export class HomePage implements OnInit {
+  firebaseService = inject(FirebaseService);
+  utilsService = inject(UtilsService);
+  constructor() {}
 
-  constructor() { }
+  ngOnInit() {}
 
-  ngOnInit() {
+  async signOut() {
+    this.firebaseService.signOut().then(() => {
+      this.utilsService.routerLink('/auth');
+    });
   }
-
 }

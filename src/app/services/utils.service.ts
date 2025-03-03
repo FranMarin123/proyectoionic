@@ -23,6 +23,10 @@ export class UtilsService {
     toast.present();
   }
 
+  urlTree(url: string) {
+    return this.router.parseUrl(url);
+  }
+
   routerLink(url: string) {
     return this.router.navigateByUrl(url);
   }
