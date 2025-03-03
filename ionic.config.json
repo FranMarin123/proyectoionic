@@ -1,0 +1,7 @@
+{
+  "name": "warmace-manager",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
