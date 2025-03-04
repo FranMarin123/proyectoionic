@@ -1,7 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { IonButton, IonContent, IonHeader, IonToolbar } from '@ionic/angular/standalone';
+import { IonButton, IonContent, IonFab, IonIcon, IonFabButton } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { add } from 'ionicons/icons';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { AddUpdateTaskComponent } from 'src/app/shared/components/add-update-task/add-update-task.component';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 
 @Component({
@@ -9,12 +12,12 @@ import { HeaderComponent } from 'src/app/shared/components/header/header.compone
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonToolbar, IonHeader, IonButton, HeaderComponent, IonContent],
+  imports: [IonFabButton, IonIcon, IonFab, IonButton, HeaderComponent, IonContent],
 })
 export class HomePage implements OnInit {
   firebaseService = inject(FirebaseService);
   utilsService = inject(UtilsService);
-  constructor() {}
+  constructor() { addIcons({add});}
 
   ngOnInit() {}
 
@@ -22,5 +25,9 @@ export class HomePage implements OnInit {
     this.firebaseService.signOut().then(() => {
       this.utilsService.routerLink('/auth');
     });
+  }
+
+  addUpdateMiniature() {
+    this.utilsService.presentModal({ component: AddUpdateTaskComponent, cssClass: "add-update-modal"})
   }
 }

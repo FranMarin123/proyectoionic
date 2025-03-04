@@ -8,4 +8,9 @@ export const environment = {
     messagingSenderId: ,
     appId: 
   },
+  supabaseConfig: {
+    projectURl: "",
+    apiKey: "",
+    bucket: ""
+  }
 };
