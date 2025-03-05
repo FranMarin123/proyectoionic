@@ -21,6 +21,8 @@ import {
   getDoc,
   addDoc,
   collection,
+  collectionData,
+  query,
 } from '@angular/fire/firestore';
 
 @Injectable({
@@ -54,7 +56,7 @@ export class FirebaseService {
   async signOut() {
     await this.auth.signOut();
     localStorage.removeItem('user');
-    //window.location.reload();
+    window.location.reload();
   }
 
   async isAuthenticated() {
@@ -81,6 +83,11 @@ export class FirebaseService {
   }
   addDocument(path: string, data: any) {
     return addDoc(collection(this.firestore, path), data);
+  }
+
+  getCollectionData(path: string, collectionQuery?: any) {
+    const ref = collection(this.firestore, path);
+    return collectionData(query(ref, collectionQuery), { idField: 'id' });
   }
 
   async uploadImage(path: string, imageUrl: string) {

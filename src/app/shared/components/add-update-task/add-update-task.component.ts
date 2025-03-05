@@ -12,7 +12,6 @@ import {
   IonIcon,
   IonHeader,
   IonToolbar,
-  IonAvatar,
 } from '@ionic/angular/standalone';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { CustomInputComponent } from 'src/app/shared/components/custom-input/custom-input.component';
@@ -26,7 +25,7 @@ import {
   imageOutline,
   checkmarkCircleOutline,
 } from 'ionicons/icons';
-import { IonButton } from '@ionic/angular/standalone';
+import { IonButton, IonAvatar } from '@ionic/angular/standalone';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { User } from 'src/app/models/user.model';
 import { UtilsService } from 'src/app/services/utils.service';
@@ -36,7 +35,6 @@ import { UtilsService } from 'src/app/services/utils.service';
   templateUrl: './add-update-task.component.html',
   styleUrls: ['./add-update-task.component.scss'],
   imports: [
-    IonAvatar,
     IonIcon,
     HeaderComponent,
     IonContent,
@@ -45,6 +43,7 @@ import { UtilsService } from 'src/app/services/utils.service';
     CustomInputComponent,
     ReactiveFormsModule,
     IonButton,
+    IonAvatar,
   ],
 })
 export class AddUpdateTaskComponent implements OnInit {
@@ -57,7 +56,8 @@ export class AddUpdateTaskComponent implements OnInit {
     id: new FormControl(''),
     image: new FormControl('', [Validators.required]),
     name: new FormControl('', [Validators.required, Validators.minLength(4)]),
-    description: new FormControl('', [Validators.required, Validators.minLength(4)]),
+    units: new FormControl('', [Validators.required, Validators.min(1)]),
+    strength: new FormControl('', [Validators.required, Validators.min(0)]),
   });
 
   constructor() {
@@ -67,9 +67,13 @@ export class AddUpdateTaskComponent implements OnInit {
       personAddOutline,
       personOutline,
       alertCircleOutline,
+      imageOutline,
+      checkmarkCircleOutline,
     });
   }
-  ngOnInit() {}
+  ngOnInit() {
+    this.user = this.utilsService.getFromLocalStorage('user');
+  }
 
   async takeImage() {
     const dataUrl = (
@@ -80,7 +84,6 @@ export class AddUpdateTaskComponent implements OnInit {
     }
   }
 
-  
   async submit() {
     if (this.form.valid) {
       const loading = await this.utilsService.loading();

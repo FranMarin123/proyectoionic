@@ -8,6 +8,7 @@ import {
   ModalOptions,
 } from '@ionic/angular/standalone';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -68,6 +69,10 @@ export class UtilsService {
       promptLabelPhoto: 'Selecciona una imagen',
       promptLabelPicture: 'Saca una foto'
     });
+  }
+
+  getLocalStoredUser() : User | null {
+    return this.getFromLocalStorage('user');
   }
 
   constructor() {}
