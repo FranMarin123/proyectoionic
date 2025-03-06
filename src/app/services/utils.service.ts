@@ -6,6 +6,8 @@ import {
   ToastOptions,
   ModalController,
   ModalOptions,
+  AlertController,
+  AlertOptions,
 } from '@ionic/angular/standalone';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { User } from '../models/user.model';
@@ -18,6 +20,7 @@ export class UtilsService {
   toastController = inject(ToastController);
   router = inject(Router);
   modalController = inject(ModalController);
+  alertController = inject(AlertController);
 
   loading() {
     return this.loadingController.create({ spinner: 'crescent' });
@@ -73,6 +76,12 @@ export class UtilsService {
 
   getLocalStoredUser() : User | null {
     return this.getFromLocalStorage('user');
+  }
+
+  async presentAlert(alertOptions?: AlertOptions) {
+    const alert = await this.alertController.create(alertOptions);
+
+    await alert.present();
   }
 
   constructor() {}
