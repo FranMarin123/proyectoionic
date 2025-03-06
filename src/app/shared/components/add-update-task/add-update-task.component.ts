@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -12,7 +12,6 @@ import {
   IonIcon,
   IonHeader,
   IonToolbar,
-  IonAvatar,
 } from '@ionic/angular/standalone';
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
 import { CustomInputComponent } from 'src/app/shared/components/custom-input/custom-input.component';
@@ -26,17 +25,17 @@ import {
   imageOutline,
   checkmarkCircleOutline,
 } from 'ionicons/icons';
-import { IonButton } from '@ionic/angular/standalone';
+import { IonButton, IonAvatar } from '@ionic/angular/standalone';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { User } from 'src/app/models/user.model';
 import { UtilsService } from 'src/app/services/utils.service';
+import { Task } from 'src/app/models/task.model';
 
 @Component({
   selector: 'app-add-update-task',
   templateUrl: './add-update-task.component.html',
   styleUrls: ['./add-update-task.component.scss'],
   imports: [
-    IonAvatar,
     IonIcon,
     HeaderComponent,
     IonContent,
@@ -45,9 +44,11 @@ import { UtilsService } from 'src/app/services/utils.service';
     CustomInputComponent,
     ReactiveFormsModule,
     IonButton,
+    IonAvatar,
   ],
 })
 export class AddUpdateTaskComponent implements OnInit {
+  @Input() task: Task | null = null;
   firebaseService = inject(FirebaseService);
   utilsService = inject(UtilsService);
 
@@ -67,9 +68,17 @@ export class AddUpdateTaskComponent implements OnInit {
       personAddOutline,
       personOutline,
       alertCircleOutline,
+      imageOutline,
+      checkmarkCircleOutline,
     });
   }
-  ngOnInit() {}
+
+  ngOnInit() {
+    this.user = this.utilsService.getFromLocalStorage('user');
+    if (this.task) {
+      this.form.setValue(this.task)
+    }
+  }
 
   async takeImage() {
     const dataUrl = (
@@ -80,46 +89,96 @@ export class AddUpdateTaskComponent implements OnInit {
     }
   }
 
-  
   async submit() {
     if (this.form.valid) {
-      const loading = await this.utilsService.loading();
-      await loading.present();
+      if (this.task) {
+        this.UpdateTask();
+      } else {
+        this.createTask();
+      }
+    }
+  }
 
-      const path: string = `users/${this.user.uid}/tasks`;
+  async createTask() {
+    const loading = await this.utilsService.loading();
+    await loading.present();
+
+    const path: string = `users/${this.user.uid}/tasks`;
+    const imageDataUrl = this.form.value.image;
+    const imagePath = `${this.user.uid}/${Date.now()}`;
+    const imageUrl = await this.firebaseService.uploadImage(
+      imagePath,
+      imageDataUrl!
+    );
+    this.form.controls.image.setValue(imageUrl);
+    delete this.form.value.id;
+
+    this.firebaseService
+      .addDocument(path, this.form.value)
+      .then(async (res) => {
+        this.utilsService.dismissModal({ success: true });
+        this.utilsService.presentToast({
+          message: 'Tarea añadida exitosamente',
+          duration: 1500,
+          color: 'success',
+          position: 'middle',
+          icon: 'checkmark-circle-outline',
+        });
+      })
+      .catch((error) => {
+        this.utilsService.presentToast({
+          message: error.message,
+          duration: 2500,
+          color: 'danger',
+          position: 'middle',
+          icon: 'alert-circle-outline',
+        });
+      })
+      .finally(() => {
+        loading.dismiss();
+      });
+  }
+
+  async UpdateTask() {
+    const loading = await this.utilsService.loading();
+    await loading.present();
+
+    const path: string = `users/${this.user.uid}/tasks/${this.task!.id}`;
+    if (this.form.value.image != this.task!.image) {
       const imageDataUrl = this.form.value.image;
-      const imagePath = `${this.user.uid}/${Date.now()}`;
+      const imagePath = await this.firebaseService.getFilePath(this.task!.image)
       const imageUrl = await this.firebaseService.uploadImage(
         imagePath,
         imageDataUrl!
       );
       this.form.controls.image.setValue(imageUrl);
-      delete this.form.value.id;
-
-      this.firebaseService
-        .addDocument(path, this.form.value)
-        .then(async (res) => {
-          this.utilsService.dismissModal({ success: true });
-          this.utilsService.presentToast({
-            message: 'Tarea añadida exitosamente',
-            duration: 1500,
-            color: 'success',
-            position: 'middle',
-            icon: 'checkmark-circle-outline',
-          });
-        })
-        .catch((error) => {
-          this.utilsService.presentToast({
-            message: error.message,
-            duration: 2500,
-            color: 'danger',
-            position: 'middle',
-            icon: 'alert-circle-outline',
-          });
-        })
-        .finally(() => {
-          loading.dismiss();
-        });
     }
+    delete this.form.value.id;
+
+    this.firebaseService
+      .updateDocument(path, this.form.value)
+      .then(async (res) => {
+        this.utilsService.dismissModal({ success: true });
+        this.utilsService.presentToast({
+          message: 'Tarea editada exitosamente',
+          duration: 1500,
+          color: 'success',
+          position: 'middle',
+          icon: 'checkmark-circle-outline',
+        });
+      })
+      .catch((error) => {
+        this.utilsService.presentToast({
+          message: error.message,
+          duration: 2500,
+          color: 'danger',
+          position: 'middle',
+          icon: 'alert-circle-outline',
+        });
+      })
+      .finally(() => {
+        loading.dismiss();
+      });
   }
+
 }

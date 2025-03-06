@@ -10,31 +10,31 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
-    loadComponent: () => import('./pages/auth/auth.page').then( m => m.AuthPage),
+    loadComponent: () => import('./pages/auth/auth.page').then( (m) => m.AuthPage),
     canActivate: [noAuthGuard]
   },
   {
     path: 'sign-up',
-    loadComponent: () => import('./pages/auth/sign-up/sign-up.page').then( m => m.SignUpPage),
+    loadComponent: () => import('./pages/auth/sign-up/sign-up.page').then( (m) => m.SignUpPage),
     canActivate: [noAuthGuard]
   },
   {
     path: 'forgot-password',
-    loadComponent: () => import('./pages/auth/forgot-password/forgot-password.page').then( m => m.ForgotPasswordPage),
+    loadComponent: () => import('./pages/auth/forgot-password/forgot-password.page').then( (m) => m.ForgotPasswordPage),
     canActivate: [noAuthGuard]
   },
   {
     path: 'main',
-    loadComponent: () => import('./pages/main/main.page').then( m => m.MainPage),
+    loadComponent: () => import('./pages/main/main.page').then( (m) => m.MainPage),
     canActivate: [authGuard]
   },
   {
     path: 'home',
-    loadComponent: () => import('./pages/main/home/home.page').then( m => m.HomePage),
+    loadComponent: () => import('./pages/main/home/home.page').then( (m) => m.HomePage),
     canActivate: [authGuard]
   },
   {
     path: 'profile',
-    loadComponent: () => import('./pages/main/profile/profile.page').then( m => m.ProfilePage)
+    loadComponent: () => import('./pages/main/profile/profile.page').then( (m) => m.ProfilePage)
   },
 ];

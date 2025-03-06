@@ -12,6 +12,7 @@ import {
   uploadString,
   ref,
   getDownloadURL,
+  deleteObject,
 } from '@angular/fire/storage';
 import { User } from '../models/user.model';
 import {
@@ -19,9 +20,17 @@ import {
   setDoc,
   doc,
   getDoc,
+  updateDoc,
   addDoc,
   collection,
+  collectionData,
+  query,
+  deleteDoc,
+  QueryConstraint,
+  orderBy,
+  limit,
 } from '@angular/fire/firestore';
+import { QueryOptions } from './query-options.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -54,7 +63,7 @@ export class FirebaseService {
   async signOut() {
     await this.auth.signOut();
     localStorage.removeItem('user');
-    //window.location.reload();
+    window.location.reload();
   }
 
   async isAuthenticated() {
@@ -79,8 +88,41 @@ export class FirebaseService {
   setDocument(path: string, data: any) {
     return setDoc(doc(this.firestore, path), data);
   }
+
+  updateDocument(path: string, data: any) {
+    return updateDoc(doc(this.firestore, path), data);
+  }
+
+  deleteDocument(path: string) {
+    return deleteDoc(doc(this.firestore, path));
+  }
+
   addDocument(path: string, data: any) {
     return addDoc(collection(this.firestore, path), data);
+  }
+
+  buildQueryConstraints(options?: QueryOptions): QueryConstraint[] {
+    const queryConstraints: QueryConstraint[] = [];
+
+    // Manejo del orden (orderBy)
+    if (options?.orderBy) {
+      queryConstraints.push(
+        orderBy(options.orderBy.field, options.orderBy.direction)
+      );
+    }
+
+    // Manejo de la cantidad límite (limit)
+    if (options?.limit) {
+      queryConstraints.push(limit(options.limit));
+    }
+
+    return queryConstraints;
+  }
+
+  getCollectionData(path: string, options?: QueryOptions) {
+    const ref = collection(this.firestore, path);
+    const collectionQuery = this.buildQueryConstraints(options);
+    return collectionData(query(ref, ...collectionQuery), { idField: 'id' });
   }
 
   async uploadImage(path: string, imageUrl: string) {
@@ -89,5 +131,13 @@ export class FirebaseService {
         return getDownloadURL(ref(this.storage, path));
       }
     );
+  }
+
+  async getFilePath(url: string) {
+    return ref(this.storage, url).fullPath
+  }
+
+  async deleteFile(path: string) {
+    return deleteObject(ref(this.storage, path));
   }
 }
