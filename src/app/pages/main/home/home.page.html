@@ -1,6 +1,17 @@
-<app-header title="Inicio"></app-header>
+<app-header [showMenuButton]="true" title="Inicio"></app-header>
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-card mode="ios" color="secondary" class="d-flex-center ion-text-center" *ngIf="!loading && tasks.length">
+    <div>
+      <h5>{{tasks.length}}</h5>
+      <p>Tareas</p>
+    </div>
+  </ion-card>
+
   <ion-list *ngIf="!loading">
     <ion-item-sliding
       *ngFor="let task of tasks"
@@ -50,7 +61,7 @@
     </ion-item>
   </ion-list>
 
-  <div *ngIf="!loading && task.length == 0 " class="empty">
+  <div *ngIf="!loading && tasks.length == 0 " class="empty">
     <ion-icon name="body-outline"></ion-icon>
     <h3>Aún no has agregado ninguna tarea</h3>
   </div>
